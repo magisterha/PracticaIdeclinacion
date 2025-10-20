@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="pageTitle">Constructor de Paradigmas: 1ª Declinación</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            touch-action: none;
+        }
+        .drop-zone { min-height: 60px; min-width: 100px; transition: background-color 0.2s, box-shadow 0.2s; }
+        .piece { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; user-select: none; }
+        .piece:active { cursor: grabbing; }
+        .dragging { opacity: 0.5; transform: scale(0.95); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .drag-over { background-color: #ecfccb; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.1); }
+        .correct { background-color: #d9f99d !important; cursor: default; }
+        .incorrect-flash { animation: flash-red 0.5s; }
+        @keyframes flash-red { 0% { background-color: #fee2e2; } 100% { background-color: transparent; } }
+        #pieces-container .piece.correct { display: none; }
+        .lang-btn.active { background-color: #0369a1; color: white; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen p-4">
+
+    <main class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-5xl">
+        
+        <!-- SELECCIÓN DE IDIOMA -->
+        <div id="language-selector" class="flex justify-center items-center gap-2 mb-6 border-b pb-4">
+            <span class="font-semibold text-slate-600" data-translate="languageLabel">Idioma:</span>
+            <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold transition-colors bg-slate-200 hover:bg-slate-300" data-lang="es">Español</button>
+            <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold transition-colors bg-slate-200 hover:bg-slate-300" data-lang="en">English</button>
+            <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold transition-colors bg-slate-200 hover:bg-slate-300" data-lang="zh-TW">繁體中文</button>
+            <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold transition-colors bg-slate-200 hover:bg-slate-300" data-lang="la">Latīna</button>
+        </div>
+
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-sky-700" data-translate="title">Constructor de Paradigmas</h1>
+            <p id="subtitle" class="text-slate-500 mt-1" data-translate="subtitle">Aprende la primera declinación latina.</p>
+        </header>
+
+        <!-- CONTENEDOR DE SECUENCIAS -->
+        <div id="sequences-container">
+
+            <!-- Secuencia 1: ESTUDIO -->
+            <div id="sequence-study" class="hidden">
+                <h2 class="text-2xl font-bold text-center mb-4 text-sky-600" data-translate="studyTitle">Secuencia 1: Estudio del Paradigma</h2>
+                <p id="study-instruction" class="text-center mb-4 text-slate-500" data-translate="studyInstruction">Memoriza la tabla para <em class="font-serif">stella, -ae</em>.</p>
+                <div class="flex justify-center">
+                    <table id="study-table" class="w-full max-w-lg border-collapse text-center">
+                        <!-- El contenido de la tabla se generará con JS -->
+                    </table>
+                </div>
+                <div class="mt-6 flex justify-center">
+                    <button id="start-practice-btn" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 active:scale-95 transition-transform" data-translate="startPracticeBtn">¡A Practicar!</button>
+                </div>
+            </div>
+
+            <!-- Secuencia 2: JUEGO -->
+            <div id="sequence-game" class="hidden">
+                 <h2 class="text-2xl font-bold text-center mb-4 text-sky-600" data-translate="practiceTitle">Secuencia 2: Práctica</h2>
+                 <p id="practice-instruction" class="text-center mb-4 text-slate-500" data-translate="practiceInstruction">Arrastra las terminaciones para completar la declinación de <em class="font-serif">stella, -ae</em>.</p>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2">
+                        <table id="game-table" class="w-full border-collapse text-center">
+                            <!-- El contenido de la tabla se generará con JS -->
+                        </table>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="font-bold text-center text-lg mb-2 text-slate-600" data-translate="endingsBoxTitle">Terminaciones</h3>
+                        <div id="pieces-container" class="bg-slate-100 p-4 rounded-lg grid grid-cols-2 gap-3 flex-grow content-start"></div>
+                    </div>
+                </div>
+                <div id="game-feedback" class="mt-6 flex flex-col items-center">
+                    <div id="success-message" class="text-center text-green-600 font-bold text-xl opacity-0 transition-opacity mb-4">
+                        <!-- El mensaje se establece con JS -->
+                    </div>
+                    <div class="flex gap-4">
+                        <button id="reset-button" class="bg-sky-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-700 active:scale-95 transition-transform" data-translate="resetBtn">Reiniciar Palabra</button>
+                        <button id="next-word-btn" class="hidden bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 active:scale-95 transition-transform" data-translate="nextWordBtn">Siguiente Palabra</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Secuencia final: JUEGO COMPLETADO -->
+            <div id="sequence-end" class="hidden text-center py-8">
+                <h2 class="text-3xl font-bold text-green-600" data-translate="endTitle">¡Felicidades!</h2>
+                <p class="text-slate-600 mt-2 text-lg" data-translate="endMessage">Has completado todas las palabras de práctica.</p>
+                <button id="restart-all-btn" class="mt-6 bg-sky-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-700 active:scale-95 transition-transform" data-translate="restartAllBtn">Jugar de Nuevo</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. DATOS Y ESTADO DEL JUEGO ---
+        
+        // Diccionario de traducciones para la UI
+        const translations = {
+            pageTitle: { es: 'Constructor de Paradigmas: 1ª Declinación', en: 'Paradigm Builder: 1st Declension', 'zh-TW': '範式建構器：第一變格法', la: 'Formarum Aedificator: Declinatio Prima' },
+            languageLabel: { es: 'Idioma:', en: 'Language:', 'zh-TW': '語言：', la: 'Lingua:' },
+            title: { es: 'Constructor de Paradigmas', en: 'Paradigm Builder', 'zh-TW': '範式建構器', la: 'Formarum Aedificator' },
+            subtitle: { es: 'Aprende la primera declinación latina.', en: 'Learn the first Latin declension.', 'zh-TW': '學習拉丁語第一變格法', la: 'Disce primam declinationem Latinam.' },
+            studyTitle: { es: 'Secuencia 1: Estudio', en: 'Sequence 1: Study', 'zh-TW': '第一序列：學習', la: 'Sequentia I: Studium' },
+            studyInstruction: { es: 'Memoriza la tabla para <em class="font-serif">{word}</em>.', en: 'Memorize the table for <em class="font-serif">{word}</em>.', 'zh-TW': '記住 <em class="font-serif">{word}</em> 的表格。', la: 'Memoriae trade tabulam <em class="font-serif">{word}</em>.' },
+            practiceTitle: { es: 'Secuencia 2: Práctica', en: 'Sequence 2: Practice', 'zh-TW': '第二序列：練習', la: 'Sequentia II: Exercitatio' },
+            practiceInstruction: { es: 'Arrastra las terminaciones para completar la declinación de <em class="font-serif">{word}</em>.', en: 'Drag the endings to complete the declension of <em class="font-serif">{word}</em>.', 'zh-TW': '拖動詞尾以完成 <em class="font-serif">{word}</em> 的變格。', la: 'Trahe terminationes ad explendam declinationem <em class="font-serif">{word}</em>.' },
+            endingsBoxTitle: { es: 'Terminaciones', en: 'Endings', 'zh-TW': '詞尾', la: 'Terminationes' },
+            case: { es: 'Caso', en: 'Case', 'zh-TW': '格', la: 'Casus' },
+            singular: { es: 'Singular', en: 'Singular', 'zh-TW': '單數', la: 'Singularis' },
+            plural: { es: 'Plural', en: 'Plural', 'zh-TW': '複數', la: 'Pluralis' },
+            nominative: { es: 'Nominativo', en: 'Nominative', 'zh-TW': '主格', la: 'Nominativus' },
+            genitive: { es: 'Genitivo', en: 'Genitive', 'zh-TW': '屬格', la: 'Genetivus' },
+            dative: { es: 'Dativo', en: 'Dative', 'zh-TW': '與格', la: 'Dativus' },
+            accusative: { es: 'Acusativo', en: 'Accusative', 'zh-TW': '賓格', la: 'Accusativus' },
+            ablative: { es: 'Ablativo', en: 'Ablative', 'zh-TW': '奪格', la: 'Ablativus' },
+            vocative: { es: 'Vocativo', en: 'Vocative', 'zh-TW': '呼格', la: 'Vocativus' },
+            startPracticeBtn: { es: '¡A Practicar!', en: 'Let\'s Practice!', 'zh-TW': '開始練習！', la: 'Exercitemus!' },
+            resetBtn: { es: 'Reiniciar Palabra', en: 'Reset Word', 'zh-TW': '重置單詞', la: 'Verbum Redde' },
+            nextWordBtn: { es: 'Siguiente Palabra', en: 'Next Word', 'zh-TW': '下一個單詞', la: 'Proximum Verbum' },
+            successMessage: { es: '¡Correcto! Has completado la declinación de <em class="font-serif">{word}</em>.', en: 'Correct! You completed the declension of <em class="font-serif">{word}</em>.', 'zh-TW': '正確！你已完成 <em class="font-serif">{word}</em> 的變格。', la: 'Recte! Declinatio <em class="font-serif">{word}</em> perfecta est.' },
+            endTitle: { es: '¡Felicidades!', en: 'Congratulations!', 'zh-TW': '恭喜！', la: 'Macte!' },
+            endMessage: { es: 'Has completado todas las palabras de práctica.', en: 'You have completed all practice words.', 'zh-TW': '你已經完成了所有練習單詞。', la: 'Omnia verba exercitationis perfecisti.' },
+            restartAllBtn: { es: 'Jugar de Nuevo', en: 'Play Again', 'zh-TW': '再玩一次', la: 'Iterum Lude' },
+        };
+        
+        // Palabras para practicar
+        const declensionWords = [
+            { paradigm: 'stella, -ae', stem: 'stell' },
+            { paradigm: 'puella, -ae', stem: 'puell' },
+            { paradigm: 'nauta, -ae', stem: 'naut' },
+            { paradigm: 'agricola, -ae', stem: 'agricol' }
+        ];
+
+        // Terminaciones de la 1ª declinación
+        const firstDeclensionEndings = {
+            'nom-s': '-a', 'nom-p': '-ae',
+            'gen-s': '-ae', 'gen-p': '-ārum',
+            'dat-s': '-ae', 'dat-p': '-īs',
+            'acc-s': '-am', 'acc-p': '-ās',
+            'abl-s': '-ā',  'abl-p': '-īs',
+            'voc-s': '-a',  'voc-p': '-ae',
+        };
+
+        // Estado del juego
+        let currentLanguage = 'es';
+        let currentWordIndex = 0;
+        let draggedPiece = null;
+
+        // --- 2. SELECTORES DE ELEMENTOS DEL DOM ---
+        const langButtons = document.querySelectorAll('.lang-btn');
+        const sequences = {
+            study: document.getElementById('sequence-study'),
+            game: document.getElementById('sequence-game'),
+            end: document.getElementById('sequence-end'),
+        };
+        const startPracticeBtn = document.getElementById('start-practice-btn');
+        const resetButton = document.getElementById('reset-button');
+        const nextWordBtn = document.getElementById('next-word-btn');
+        const restartAllBtn = document.getElementById('restart-all-btn');
+        const piecesContainer = document.getElementById('pieces-container');
+        const successMessage = document.getElementById('success-message');
+
+        // --- 3. FUNCIONES PRINCIPALES ---
+
+        function updateUIText() {
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.dataset.translate;
+                if (translations[key] && translations[key][currentLanguage]) {
+                    // Reemplaza {word} si es necesario
+                    const currentWordParadigm = declensionWords[currentWordIndex].paradigm;
+                    const translatedText = translations[key][currentLanguage].replace('{word}', currentWordParadigm);
+                    el.innerHTML = translatedText;
+                }
+            });
+            document.documentElement.lang = currentLanguage;
+            document.title = translations.pageTitle[currentLanguage];
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            langButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            updateUIText();
+            // Re-renderizar la secuencia actual con el nuevo idioma
+            if (!sequences.study.classList.contains('hidden')) setupStudySequence();
+            if (!sequences.game.classList.contains('hidden')) initializeGame();
+        }
+
+        function showSequence(sequenceName) {
+            Object.values(sequences).forEach(seq => seq.classList.add('hidden'));
+            if (sequences[sequenceName]) {
+                sequences[sequenceName].classList.remove('hidden');
+            }
+        }
+
+        function generateTableContent(tableId, isGame = false) {
+            const table = document.getElementById(tableId);
+            table.innerHTML = ''; // Limpiar tabla
+            const currentWord = declensionWords[currentWordIndex];
+            const cases = ['nominative', 'genitive', 'dative', 'accusative', 'ablative', 'vocative'];
+            
+            // Header
+            let headerHTML = `<thead class="bg-slate-200"><tr>
+                <th class="p-3 border border-slate-300 rounded-tl-lg font-bold">${translations.case[currentLanguage]}</th>
+                <th class="p-3 border border-slate-300 font-bold">${translations.singular[currentLanguage]}</th>
+                <th class="p-3 border border-slate-300 rounded-tr-lg font-bold">${translations.plural[currentLanguage]}</th>
+            </tr></thead>`;
+            
+            // Body
+            let bodyHTML = '<tbody>';
+            cases.forEach(caseName => {
+                const singularKey = caseName.substring(0,3) + '-s';
+                const pluralKey = caseName.substring(0,3) + '-p';
+                
+                let singularCell, pluralCell;
+
+                if (isGame) {
+                    singularCell = `<td id="drop-${singularKey}" data-correct-ending="${firstDeclensionEndings[singularKey]}" class="drop-zone border border-dashed border-slate-400 rounded-md p-2"></td>`;
+                    pluralCell = `<td id="drop-${pluralKey}" data-correct-ending="${firstDeclensionEndings[pluralKey]}" class="drop-zone border border-dashed border-slate-400 rounded-md p-2"></td>`;
+                } else {
+                    singularCell = `<td class="p-2 border border-slate-300"><span class="font-mono text-slate-500">${currentWord.stem}</span><strong class="text-sky-700">${firstDeclensionEndings[singularKey]}</strong></td>`;
+                    pluralCell = `<td class="p-2 border border-slate-300"><span class="font-mono text-slate-500">${currentWord.stem}</span><strong class="text-sky-700">${firstDeclensionEndings[pluralKey]}</strong></td>`;
+                }
+
+                bodyHTML += `<tr>
+                    <td class="p-2 border border-slate-300 font-semibold bg-slate-50">${translations[caseName][currentLanguage]}</td>
+                    ${singularCell}
+                    ${pluralCell}
+                </tr>`;
+            });
+            bodyHTML += '</tbody>';
+
+            table.innerHTML = headerHTML + bodyHTML;
+        }
+
+        function setupStudySequence() {
+            generateTableContent('study-table', false);
+            updateUIText(); // Asegura que las instrucciones se actualicen
+            showSequence('study');
+        }
+
+        function initializeGame() {
+            generateTableContent('game-table', true);
+            piecesContainer.innerHTML = '';
+            successMessage.classList.add('opacity-0');
+            nextWordBtn.classList.add('hidden');
+            
+            // Crear y barajar las piezas
+            const endings = Object.values(firstDeclensionEndings);
+            const pieceData = [];
+            const counts = {};
+            endings.forEach(ending => {
+                counts[ending] = (counts[ending] || 0) + 1;
+                pieceData.push({ id: `${ending}-${counts[ending]}`, text: ending });
+            });
+
+            for (let i = pieceData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pieceData[i], pieceData[j]] = [pieceData[j], pieceData[i]];
+            }
+
+            pieceData.forEach(data => {
+                const piece = document.createElement('div');
+                piece.id = data.id;
+                piece.textContent = data.text;
+                piece.draggable = true;
+                piece.className = 'piece bg-sky-100 text-sky-800 p-3 rounded-md text-center font-bold text-lg';
+                piecesContainer.appendChild(piece);
+            });
+            
+            addDragListeners();
+            updateUIText(); // Asegura que las instrucciones se actualicen
+            showSequence('game');
+        }
+
+        // --- 4. MANEJADORES DE EVENTOS (DRAG & DROP) ---
+        function addDragListeners() {
+            document.querySelectorAll('.piece').forEach(p => {
+                p.addEventListener('dragstart', e => {
+                    draggedPiece = e.target;
+                    setTimeout(() => e.target.classList.add('dragging'), 0);
+                });
+                p.addEventListener('dragend', e => e.target.classList.remove('dragging'));
+            });
+
+            document.querySelectorAll('.drop-zone').forEach(z => {
+                z.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    if (!z.classList.contains('correct')) z.classList.add('drag-over');
+                });
+                z.addEventListener('dragleave', e => z.classList.remove('drag-over'));
+                z.addEventListener('drop', handleDrop);
+            });
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            if (!dropZone || dropZone.classList.contains('correct')) return;
+            
+            dropZone.classList.remove('drag-over');
+            
+            if (draggedPiece && draggedPiece.textContent === dropZone.dataset.correctEnding) {
+                dropZone.innerHTML = '';
+                dropZone.appendChild(draggedPiece);
+                draggedPiece.draggable = false;
+                dropZone.classList.add('correct');
+                draggedPiece.classList.add('correct');
+                checkWinCondition();
+            } else {
+                dropZone.classList.add('incorrect-flash');
+                setTimeout(() => dropZone.classList.remove('incorrect-flash'), 500);
+            }
+        }
+        
+        // --- 5. LÓGICA DE PROGRESIÓN DEL JUEGO ---
+        function checkWinCondition() {
+            if (document.querySelectorAll('.drop-zone.correct').length === 12) {
+                updateUIText(); // Para actualizar el mensaje de éxito con el nombre correcto
+                successMessage.classList.remove('opacity-0');
+                if (currentWordIndex < declensionWords.length - 1) {
+                    nextWordBtn.classList.remove('hidden');
+                } else {
+                    setTimeout(() => showSequence('end'), 1500);
+                }
+            }
+        }
+
+        function startNextWord() {
+            currentWordIndex++;
+            if (currentWordIndex < declensionWords.length) {
+                setupStudySequence();
+            } else {
+                showSequence('end');
+            }
+        }
+        
+        function restartGameCompletely() {
+            currentWordIndex = 0;
+            setupStudySequence();
+        }
+
+        // --- 6. INICIALIZACIÓN Y EVENT LISTENERS ---
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => switchLanguage(button.dataset.lang));
+        });
+        
+        startPracticeBtn.addEventListener('click', initializeGame);
+        resetButton.addEventListener('click', initializeGame);
+        nextWordBtn.addEventListener('click', startNextWord);
+        restartAllBtn.addEventListener('click', restartGameCompletely);
+
+        // Iniciar el juego
+        switchLanguage('es'); // Establecer idioma inicial
+        setupStudySequence(); // Mostrar la primera secuencia de estudio
+    });
+    </script>
+</body>
+</html>
+
