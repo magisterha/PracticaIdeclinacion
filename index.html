@@ -32,7 +32,6 @@
 
     <main class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-5xl">
         
-        <!-- SELECCIÓN DE IDIOMA -->
         <div id="language-selector" class="flex justify-center items-center gap-2 mb-6 border-b pb-4">
             <span class="font-semibold text-slate-600" data-translate="languageLabel">Idioma:</span>
             <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold transition-colors bg-slate-200 hover:bg-slate-300" data-lang="es">Español</button>
@@ -46,32 +45,27 @@
             <p id="subtitle" class="text-slate-500 mt-1" data-translate="subtitle">Aprende la primera declinación latina.</p>
         </header>
 
-        <!-- CONTENEDOR DE SECUENCIAS -->
         <div id="sequences-container">
 
-            <!-- Secuencia 1: ESTUDIO -->
             <div id="sequence-study" class="hidden">
                 <h2 class="text-2xl font-bold text-center mb-4 text-sky-600" data-translate="studyTitle">Secuencia 1: Estudio del Paradigma</h2>
                 <p id="study-instruction" class="text-center mb-4 text-slate-500" data-translate="studyInstruction">Memoriza la tabla para <em class="font-serif">stella, -ae</em>.</p>
                 <div class="flex justify-center">
                     <table id="study-table" class="w-full max-w-lg border-collapse text-center">
-                        <!-- El contenido de la tabla se generará con JS -->
-                    </table>
+                        </table>
                 </div>
                 <div class="mt-6 flex justify-center">
                     <button id="start-practice-btn" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 active:scale-95 transition-transform" data-translate="startPracticeBtn">¡A Practicar!</button>
                 </div>
             </div>
 
-            <!-- Secuencia 2: JUEGO -->
             <div id="sequence-game" class="hidden">
                  <h2 class="text-2xl font-bold text-center mb-4 text-sky-600" data-translate="practiceTitle">Secuencia 2: Práctica</h2>
                  <p id="practice-instruction" class="text-center mb-4 text-slate-500" data-translate="practiceInstruction">Arrastra las terminaciones para completar la declinación de <em class="font-serif">stella, -ae</em>.</p>
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="md:col-span-2">
                         <table id="game-table" class="w-full border-collapse text-center">
-                            <!-- El contenido de la tabla se generará con JS -->
-                        </table>
+                            </table>
                     </div>
                     <div class="flex flex-col">
                         <h3 class="font-bold text-center text-lg mb-2 text-slate-600" data-translate="endingsBoxTitle">Terminaciones</h3>
@@ -80,8 +74,7 @@
                 </div>
                 <div id="game-feedback" class="mt-6 flex flex-col items-center">
                     <div id="success-message" class="text-center text-green-600 font-bold text-xl opacity-0 transition-opacity mb-4">
-                        <!-- El mensaje se establece con JS -->
-                    </div>
+                        </div>
                     <div class="flex gap-4">
                         <button id="reset-button" class="bg-sky-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-700 active:scale-95 transition-transform" data-translate="resetBtn">Reiniciar Palabra</button>
                         <button id="next-word-btn" class="hidden bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 active:scale-95 transition-transform" data-translate="nextWordBtn">Siguiente Palabra</button>
@@ -89,7 +82,6 @@
                 </div>
             </div>
             
-            <!-- Secuencia final: JUEGO COMPLETADO -->
             <div id="sequence-end" class="hidden text-center py-8">
                 <h2 class="text-3xl font-bold text-green-600" data-translate="endTitle">¡Felicidades!</h2>
                 <p class="text-slate-600 mt-2 text-lg" data-translate="endMessage">Has completado todas las palabras de práctica.</p>
@@ -207,7 +199,11 @@
             const table = document.getElementById(tableId);
             table.innerHTML = ''; // Limpiar tabla
             const currentWord = declensionWords[currentWordIndex];
-            const cases = ['nominative', 'genitive', 'dative', 'accusative', 'ablative', 'vocative'];
+            
+            // --- CAMBIO REALIZADO AQUÍ ---
+            // Orden de casos solicitado: Nominativo, Vocativo, Acusativo, Genitivo, Dativo, Ablativo
+            const cases = ['nominative', 'vocative', 'accusative', 'genitive', 'dative', 'ablative'];
+            // Orden original: ['nominative', 'genitive', 'dative', 'accusative', 'ablative', 'vocative'];
             
             // Header
             let headerHTML = `<thead class="bg-slate-200"><tr>
@@ -367,4 +363,3 @@
     </script>
 </body>
 </html>
-
